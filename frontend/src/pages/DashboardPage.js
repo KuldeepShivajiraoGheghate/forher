@@ -45,11 +45,31 @@ const DashboardPage = () => {
     );
   }
 
-  const copyToClipboard = (text, type) => {
-    navigator.clipboard.writeText(text);
-    setCopiedEmail(type);
-    toast.success('Email copied to clipboard!');
-    setTimeout(() => setCopiedEmail(null), 2000);
+  const copyToClipboard = async (text, type) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        setCopiedEmail(type);
+        toast.success('Email copied to clipboard!');
+        setTimeout(() => setCopiedEmail(null), 2000);
+      } else {
+        // Fallback for older browsers or restricted contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopiedEmail(type);
+        toast.success('Email copied to clipboard!');
+        setTimeout(() => setCopiedEmail(null), 2000);
+      }
+    } catch (error) {
+      console.error('Copy failed:', error);
+      toast.error('Please manually select and copy the text');
+    }
   };
 
   const getStressColor = (level) => {
