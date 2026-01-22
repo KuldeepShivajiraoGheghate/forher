@@ -35,6 +35,10 @@ db_name = os.environ.get("DB_NAME")
 if not mongo_url or not db_name:
     raise RuntimeError("MONGO_URL or DB_NAME not set")
 
+# Ensure MONGO_URL has the correct scheme
+if not mongo_url.startswith(('mongodb://', 'mongodb+srv://')):
+    mongo_url = f"mongodb+srv://{mongo_url}"
+
 client = AsyncIOMotorClient(mongo_url)
 db = client[db_name]
 ##
